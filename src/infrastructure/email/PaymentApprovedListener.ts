@@ -1,6 +1,17 @@
-import { eventEmitter } from "../events/eventEmitter";
+import { EventEmitter } from "events";
+import { EmailService } from "../../domain/interfaces/EmailService";
 
-eventEmitter.on("payment.approved", async (data: any) => {
-    console.log("Enviado email para:", data.email);
-    console.log(`Pagamento ${data.paymentID} confirmado!`);
-})
+export class PaymentApprovedListener {
+    constructor(
+        private eventEmitter: EventEmitter,
+        private emailService: EmailService
+    ) {
+        this.eventEmitter.on("payment.approved", async (data) => {
+            await this.emailService.send(
+                data.customerEmail,
+                "Pagamento aprovado!",
+                `Seu pagamento de R$ ${data.amount} foi aprovado.`
+            );
+        });
+    }
+}
